@@ -33,7 +33,7 @@ spec:
             memory: 1024Mi
           requests:
             cpu: 100m
-            memory: 700Mi
+            memory: 400Mi
       restartPolicy: Always
       {{- with .Values.mysql.affinity }}
       affinity:

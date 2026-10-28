@@ -19,9 +19,15 @@ spec:
       {{ end }}
       containers:
       - name: catalogue
-        image: {{ .Values.image.repo }}/rs-catalogue:{{ .Values.image.version }}
+        image: {{ .Values.catalogue.image.repo }}:{{ .Values.catalogue.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
+          - name: OTEL_SERVICE_NAME
+            value: "catalogue"
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: "http://otel-collector.robot-shop.svc.cluster.local:4318"
+          - name: OTEL_EXPORTER_OTLP_PROTOCOL
+            value: "http/protobuf"
         ports:
         - containerPort: 8080
         resources:

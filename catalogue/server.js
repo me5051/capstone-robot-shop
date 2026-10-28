@@ -1,10 +1,19 @@
-const instana = require('@instana/collector');
-// init tracing
-// MUST be done before loading anything else!
-instana({
-    tracing: {
-        enabled: true
-    }
+const { NodeSDK } = require('@opentelemetry/sdk-node');
+const {
+    getNodeAutoInstrumentations
+} = require('@opentelemetry/auto-instrumentations-node');
+const { trace } = require('@opentelemetry/api');
+
+const sdk = new NodeSDK({
+    instrumentations: [getNodeAutoInstrumentations()]
+});
+
+sdk.start();
+
+process.on('SIGTERM', () => {
+    sdk.shutdown()
+        .catch((error) => console.error('OpenTelemetry shutdown error', error))
+        .finally(() => process.exit(0));
 });
 
 const mongoClient = require('mongodb').MongoClient;
@@ -39,15 +48,22 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    let dcs = [
+    const dcs = [
         "asia-northeast2",
         "asia-south1",
         "europe-west3",
         "us-east1",
         "us-west1"
     ];
-    let span = instana.currentSpan();
-    span.annotate('custom.sdk.tags.datacenter', dcs[Math.floor(Math.random() * dcs.length)]);
+
+    const span = trace.getActiveSpan();
+
+    if (span) {
+        span.setAttribute(
+            'custom.sdk.tags.datacenter',
+            dcs[Math.floor(Math.random() * dcs.length)]
+        );
+    }
 
     next();
 });

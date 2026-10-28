@@ -54,14 +54,6 @@
             $templateCache.removeAll();
         });
 
-        // Instana EUM
-        // may not be loaded so check for ineum object
-        $rootScope.$on('$routeChangeSuccess', (event, next, current) => {
-            if(typeof ineum !== 'undefined') {
-                //console.log('route change', event, next, current);
-                ineum('page', next.loadedTemplateUrl);
-            }
-        });
     });
 
     robotshop.controller('shopform', function($scope, $http, $location, currentUser) {
